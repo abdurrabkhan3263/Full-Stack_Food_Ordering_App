@@ -6,7 +6,10 @@ dotenv.config({ path: "./env" });
 connection()
   .then(() => {
     app.listen(process.env.PORT, () => {
-      console.log("Server is listen on || ", process.env.PORT);
+      console.log(
+        "Server is listen on || ",
+        `http://localhost:${process.env.PORT}`
+      );
     });
     app.on("error", (error) => {
       console.error("ERROR :: ", error);
