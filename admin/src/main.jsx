@@ -8,7 +8,7 @@ import {
   createBrowserRouter,
   createRoutesFromElements,
 } from "react-router-dom";
-import { AddItems, ListItems, Orders } from "./components/Pages/index.js";
+import { AddItems, ListItems, Orders } from "./Pages/index.js";
 
 const route = createBrowserRouter(
   createRoutesFromElements(
