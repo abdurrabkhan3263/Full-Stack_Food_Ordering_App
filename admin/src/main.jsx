@@ -8,12 +8,13 @@ import {
   createBrowserRouter,
   createRoutesFromElements,
 } from "react-router-dom";
-import { AddItems, ListItems, Orders } from "./Pages/index.js";
+import { AddCategory, AddItems, ListItems, Orders } from "./Pages/index.js";
 
 const route = createBrowserRouter(
   createRoutesFromElements(
     <Route path="" element={<App />}>
       <Route path="" element={<AddItems />} />
+      <Route path="/category" element={<AddCategory />} />
       <Route path="/list" element={<ListItems />} />
       <Route path="/orders" element={<Orders />} />
     </Route>,

@@ -22,7 +22,9 @@ function App() {
 
   return (
     <ThemeProvider value={{ mode, changeMode }}>
-      <div className={`grid h-screen grid-cols-[repeat(15,1fr)] grid-rows-12`}>
+      <div
+        className={`relative grid h-screen grid-cols-[repeat(15,1fr)] grid-rows-12`}
+      >
         <div
           className={`col-span-full ${mode === "light" ? "bg-red-500" : "bg-gray-800 text-white"}`}
         ></div>

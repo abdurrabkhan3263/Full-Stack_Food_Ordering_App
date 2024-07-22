@@ -1,8 +1,10 @@
 import React from "react";
 import Input from "@/components/ui/Input";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 function AddItems() {
+  const navigate = useNavigate();
   const handleSubmit = () => {
     alert("Form is submitted");
   };
@@ -30,7 +32,13 @@ function AddItems() {
               </select>
             </div>
             <div>
-              <Button>Add category</Button>
+              <Button
+                type="button"
+                onClick={() => navigate("/category")}
+                className="cat-box"
+              >
+                Add category
+              </Button>
             </div>
           </div>
           <Input label="Enter price" type="Number" placeholder="Price" />
