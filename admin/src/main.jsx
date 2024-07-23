@@ -9,6 +9,7 @@ import {
   createRoutesFromElements,
 } from "react-router-dom";
 import { AddCategory, AddItems, ListItems, Orders } from "./Pages/index.js";
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 
 const route = createBrowserRouter(
   createRoutesFromElements(
@@ -23,6 +24,8 @@ const route = createBrowserRouter(
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <RouterProvider router={route} />
+    <QueryClientProvider client={new QueryClient()}>
+      <RouterProvider router={route} />
+    </QueryClientProvider>
   </React.StrictMode>,
 );

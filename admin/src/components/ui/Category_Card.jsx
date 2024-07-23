@@ -1,7 +1,7 @@
 import React from "react";
 import { Delete, Edit } from "../../assets/icons";
 
-function Category_Card() {
+function Category_Card({ id, category }) {
   return (
     <tr className="w-full">
       <td className="cat-box w-16 rounded-l-md border-y border-l border-black p-2.5">

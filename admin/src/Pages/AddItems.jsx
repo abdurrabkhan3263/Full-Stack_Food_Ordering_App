@@ -2,9 +2,15 @@ import React from "react";
 import Input from "@/components/ui/Input";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import Api from "@/api/ApiCalls";
 
 function AddItems() {
   const navigate = useNavigate();
+  const { data: { data: allCategory } = "", data = "" } = useQuery({
+    queryKey: ["select"],
+    queryFn: async () => await Api.getCategory(),
+  });
   const handleSubmit = () => {
     alert("Form is submitted");
   };
@@ -27,8 +33,15 @@ function AddItems() {
                 Product category
               </label>
               <select className="rounded-md border border-black px-3 py-2 outline-none">
-                <option value="name">Hello</option>
-                <option value="name">Bye</option>
+                {allCategory?.length > 0 &&
+                  allCategory.map(({ category, _id }) => {
+                    console.log(category);
+                    return (
+                      <option value="name" key={_id && _id}>
+                        {category && category}
+                      </option>
+                    );
+                  })}
               </select>
             </div>
             <div>
