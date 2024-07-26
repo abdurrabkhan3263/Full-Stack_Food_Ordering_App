@@ -2,12 +2,26 @@ import React, { useEffect, useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Delete, Edit } from "../assets/icons";
 import Category_Card from "@/components/ui/Category_Card";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import Api from "@/api/ApiCalls";
+import Confirm_Delete from "./ui/Confirm_Delete";
 
 function AddCategory() {
   const [input, setInput] = useState("");
   const navigate = useNavigate();
 
+  const client = useQueryClient();
+
+  const {
+    data: { data: categoryData } = "",
+    isError,
+    isLoading,
+    data,
+  } = useQuery({
+    queryKey: ["cat"],
+    queryFn: async () => await Api.getCategory(),
+  });
   const backCat = useCallback(
     (e) => {
       const classes = Array.from(e.target.classList);
@@ -24,33 +38,28 @@ function AddCategory() {
       document.removeEventListener("click", backCat);
     };
   }, [backCat]);
-
   const addCatMutate = useMutation({
     mutationKey: ["cat"],
-    mutationFn: async () => {
-      const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/category/create`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            category: input,
-          }),
-        },
-      );
-      console.log(response);
-      if (!response.ok) console.error(`HTTP error! status: ${response.status}`);
-      const data = await response.json();
-      console.log(data);
-      return data;
+    mutationFn: async (inputData) => {
+      return Api.createCategory(inputData);
+    },
+    onSuccess: (result) => {
+      console.log(result);
+      toast.success(`${input} has been created`);
+      setInput("");
+      client.invalidateQueries({ queryKey: ["cat"] });
+    },
+    onError: (err) => {
+      toast.error(`${err}`);
     },
   });
   const handleSubmit = () => {
-    if (!input.trim()) return;
-    addCatMutate.mutate();
+    if (!input.trim()) {
+      return toast.warning("Category is required");
+    }
+    addCatMutate.mutate(input);
   };
+
   return (
     <div className="fixed right-0 top-0 z-50 flex h-screen w-screen items-center justify-center bg-[#0000003d]">
       <div className="cat-box relative flex h-[70%] w-[29%] flex-col rounded-2xl border border-black bg-white p-4 shadow-lg">
@@ -85,7 +94,19 @@ function AddCategory() {
               </tr>
             </thead>
             <tbody className="b">
-              <Category_Card />
+              {isLoading ? (
+                <tr>
+                  <td>Loading...</td>
+                </tr>
+              ) : Array.isArray(categoryData) && categoryData.length > 0 ? (
+                categoryData.map(({ _id, category }, index) => (
+                  <tr className="w-full" key={_id}>
+                    <Category_Card category={category} id={_id} />
+                  </tr>
+                ))
+              ) : (
+                "No Data Found"
+              )}
             </tbody>
           </table>
         </div>

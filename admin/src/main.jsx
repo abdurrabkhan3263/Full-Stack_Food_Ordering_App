@@ -8,8 +8,10 @@ import {
   createBrowserRouter,
   createRoutesFromElements,
 } from "react-router-dom";
-import { AddCategory, AddItems, ListItems, Orders } from "./Pages/index.js";
+import { AddItems, ListItems, Orders } from "./Pages/index.js";
+import { AddCategory } from "./components/index.js";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import { Toaster } from "./components/ui/sonner.jsx";
 
 const route = createBrowserRouter(
   createRoutesFromElements(
@@ -26,6 +28,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <QueryClientProvider client={new QueryClient()}>
       <RouterProvider router={route} />
+      <Toaster />
     </QueryClientProvider>
   </React.StrictMode>,
 );

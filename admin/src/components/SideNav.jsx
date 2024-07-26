@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { List, Orders, Plus } from "../assets/icons";
 import { Button } from "./ui/button";
-import { useNavigate } from "react-router-dom";
-import useTheme from "@/context/context";
+import { NavLink, useNavigate } from "react-router-dom";
+import useAppTheme from "@/context/context";
 
 const navData = [
   {
@@ -23,8 +23,7 @@ const navData = [
 ];
 
 function SideNav() {
-  const [activeBtn, setActiveBtn] = useState(0);
-  const { mode, changeMode } = useTheme();
+  const { mode, changeMode } = useAppTheme();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -37,18 +36,16 @@ function SideNav() {
         <h1 className="pt-6 text-xl font-medium">Admin Panel</h1>
         <div className="flex flex-col gap-y-8 pt-20">
           {navData.map(({ name, Icon, path }, index) => (
-            <Button
+            <NavLink
               key={name}
-              onClick={() => {
-                setActiveBtn(index);
-                navigate(path);
-              }}
-              className={`py-6 ${activeBtn === index ? "bg-slate-400" : "bg-black"}`}
-              variant={`${mode === "dark" ? "dark" : "default"}`}
+              to={path}
+              className={({ isActive }) =>
+                `flex gap-x-3 rounded-md py-4 pl-3 ${isActive ? "bg-sky-700 text-white" : "bg-stone-900 text-white"}`
+              }
             >
               {<Icon />}
               {name}
-            </Button>
+            </NavLink>
           ))}
         </div>
       </div>
