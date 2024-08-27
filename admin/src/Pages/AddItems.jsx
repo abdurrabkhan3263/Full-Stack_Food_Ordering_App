@@ -1,11 +1,12 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Input from "@/components/ui/Input";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Api from "@/api/ApiCalls";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { CameraIcon } from "lucide-react";
 
 function AddItems() {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ function AddItems() {
     queryKey: ["select"],
     queryFn: async () => await Api.getCategory(),
   });
+  const [imgUrl, setImgUrl] = useState("");
   const clearInputs = () => {
     setValue("image", "");
     setValue("name", "");
@@ -40,12 +42,32 @@ function AddItems() {
   const submitForm = (data) => {
     formMutation.mutate(data);
   };
+
   return (
     <div className="w-[500px] rounded-xl px-8 py-6">
+      <div>
+        <Outlet />
+      </div>
       <form action="/hello" method="post" onSubmit={handleSubmit(submitForm)}>
         <div className="flex flex-col gap-y-6">
-          <div>
-            <input type="file" accept="image/*" {...register("image")} />
+          <div className="relative h-32 w-32 overflow-hidden rounded-full border-stone-600 bg-gray-500 text-white">
+            <span>
+              <input
+                type="file"
+                className="absolute right-1/2 top-1/2 z-[5] h-6 w-6 -translate-y-1/2 translate-x-1/2 overflow-hidden opacity-0"
+                accept="image/*"
+                {...register("image")}
+                onInput={(e) => setImgUrl(e.target.files)}
+              />
+              <CameraIcon className="absolute right-1/2 top-1/2 z-[1] -translate-y-1/2 translate-x-1/2" />
+            </span>
+            <span className="absolute z-[0] h-full w-full">
+              <img
+                src={imgUrl[0] && URL.createObjectURL(imgUrl[0])}
+                alt=""
+                className="h-full w-full rounded-full object-cover"
+              />
+            </span>
           </div>
           <Input
             label="Product name"
@@ -67,9 +89,7 @@ function AddItems() {
                 className="rounded-md border border-black px-3 py-2 outline-none"
                 {...register("category")}
               >
-                <option value="" disabled selected>
-                  Select category
-                </option>
+                <option disabled>Select category</option>
                 {allCategory?.length > 0 &&
                   allCategory.map(({ category, _id }) => {
                     return (
@@ -83,7 +103,9 @@ function AddItems() {
             <div>
               <Button
                 type="button"
-                onClick={() => navigate("/category")}
+                onClick={() => {
+                  navigate("/category");
+                }}
                 className="cat-box"
               >
                 Add category

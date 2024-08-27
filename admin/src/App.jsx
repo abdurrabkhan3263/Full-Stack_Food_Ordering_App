@@ -10,11 +10,7 @@ function App() {
   const changeMode = () => {
     setMode((prev) => (prev === "light" ? "dark" : "light"));
   };
-  useEffect(() => {
-    if (mode?.trim()) {
-      localStorage.setItem("theme", JSON.stringify(mode));
-    }
-  }, [mode]);
+
   useEffect(() => {
     const mode = JSON.parse(localStorage.getItem("theme"));
     setMode(mode);

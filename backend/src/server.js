@@ -1,8 +1,10 @@
 import app from "./app.js";
+import errorMiddleware from "./middleware/error.middleware.js";
 import connection from "./service/db.js";
 import dotenv from "dotenv";
 dotenv.config({ path: "./env" });
 
+app.use(errorMiddleware);
 connection()
   .then(() => {
     app.listen(process.env.PORT, () => {

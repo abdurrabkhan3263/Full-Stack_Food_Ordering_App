@@ -4,6 +4,7 @@ import {
   addFood,
   deleteFood,
   getFood,
+  getFoodById,
   updateFood,
 } from "../controller/food.controller.js";
 
@@ -13,5 +14,6 @@ router.route("/add").post(upload.single("image"), addFood);
 router.route("/update/:foodId").patch(upload.single("image"), updateFood);
 router.route("/delete/:foodId").delete(deleteFood);
 router.route("").get(getFood);
+router.route("/:id").get(getFoodById);
 
 export default router;

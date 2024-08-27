@@ -23,6 +23,7 @@ function ListItems() {
       ) : Array.isArray(docs) && docs.length > 0 ? (
         docs.map((items, index) => (
           <ProductCard
+            id={items._id}
             key={index}
             name={items.name}
             price={items.price}

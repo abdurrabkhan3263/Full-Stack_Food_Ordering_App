@@ -1,10 +1,10 @@
-import { isValidObjectId } from "mongoose";
+import mongoose, { isValidObjectId } from "mongoose";
 import { Foods as Food } from "../models/food.models.js";
+import { Category } from "../models/category.models.js";
 import { ApiError } from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import fs from "fs";
-import { error } from "console";
-
+import asyncHandler from "../utils/asyncHandler.js";
 // Add Food items
 
 const addFood = async (req, res, next) => {
@@ -112,7 +112,30 @@ const deleteFood = async (req, res, next) => {
 const getFood = async (req, res, next) => {
   try {
     const { page = 1, limit = 10 } = req.query;
-    const food = Food.aggregate();
+    const food = Food.aggregate([
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "category",
+          pipeline: [
+            {
+              $project: {
+                category: 1,
+              },
+            },
+          ],
+        },
+      },
+      {
+        $addFields: {
+          category: {
+            $first: "$category",
+          },
+        },
+      },
+    ]);
 
     const options = {
       page: parseInt(page),
@@ -134,9 +157,141 @@ const getFood = async (req, res, next) => {
     next(error);
   }
 };
-const createCategory = async (req, res, next) => {};
-const deleteCategory = async (req, res, next) => {};
-const updateCategory = async (req, res, next) => {};
-const readCategory = async (req, res, next) => {};
+const createCategory = asyncHandler(async (req, res, next) => {
+  const { category } = req.body;
+  if (!category?.trim()) throw new ApiError(400, "Category is required");
 
-export { addFood, updateFood, deleteFood, getFood };
+  const createCat = await Category.create({
+    category,
+  });
+  return res
+    .status(201)
+    .json(new ApiResponse(200, createCat, "Category is created successfully"));
+});
+const deleteCategory = async (req, res, next) => {
+  try {
+    const { catId } = req.params;
+    if (!isValidObjectId(catId)) throw new ApiError("Invalid category id");
+
+    const deleteCat = await Category.findByIdAndDelete(catId);
+    if (!deleteCat) throw new ApiError(200, "Category is not found");
+    return res
+      .status(200)
+      .json(new ApiResponse(200, "", "Category is deleted successfully"));
+  } catch (error) {
+    next(error);
+  }
+};
+const deleteMany = async (req, res, next) => {
+  try {
+    const { idList = [] } = req.body;
+    if (!idList.every((id) => isValidObjectId(id)))
+      throw new ApiError(400, "Category id must valid and required");
+
+    const deleteMany = await Category.deleteMany({ _id: { $in: idList } });
+    if (deleteMany.deletedCount <= 0)
+      throw new ApiError(400, "Category id is not found");
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, "", "All give category is deleted successfully")
+      );
+  } catch (error) {
+    next(error);
+  }
+};
+const updateCategory = async (req, res, next) => {
+  try {
+    console.log(req.body, "Hello i am here");
+    const { catId, category = "" } = req.body;
+    if (!isValidObjectId(catId)) throw new ApiError(400, "Invalid category id");
+    if (!category.trim()) throw new ApiError("Category is required");
+
+    const updatedData = await Category.findByIdAndUpdate(
+      catId,
+      { category },
+      { new: true }
+    ).lean();
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, updatedData, "Category is updated successfully")
+      );
+  } catch (error) {
+    next(error);
+  }
+};
+const readCategory = async (_, res, next) => {
+  try {
+    const catData = await Category.find().lean();
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          catData,
+          `${
+            catData.length <= 0
+              ? "Category is empty"
+              : "Category is fetched successfully"
+          }`
+        )
+      );
+  } catch (error) {
+    next(error);
+  }
+};
+const getFoodById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (!isValidObjectId(id)) throw new ApiError(400, "Food id is required");
+    const data = await Food.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(id),
+        },
+      },
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "category",
+          pipeline: [
+            {
+              $project: {
+                category: 1,
+              },
+            },
+          ],
+        },
+      },
+      {
+        $addFields: {
+          category: {
+            $first: "$category",
+          },
+        },
+      },
+    ]);
+    if (!data) {
+      throw new ApiError(404, "Food is not found");
+    }
+    return res.status(200).json(new ApiResponse(200, data[0]));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export {
+  addFood,
+  updateFood,
+  deleteFood,
+  getFood,
+  createCategory,
+  deleteCategory,
+  updateCategory,
+  readCategory,
+  deleteMany,
+  getFoodById,
+};

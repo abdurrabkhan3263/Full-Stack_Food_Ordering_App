@@ -114,6 +114,35 @@ class ApiCall {
       throw error;
     }
   }
+  async deleteFood(id) {
+    try {
+      const response = await fetch(`${this.base_url}/food/delete/${id}`, {
+        method: "delete",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const result = await response.json();
+      if (!response.ok) throw result.message;
+      return result.message;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async getFoodById(id) {
+    try {
+      const response = await fetch(`${this.base_url}/food/${id}`, {
+        method: "GET",
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        throw result?.message || "Something went wrong";
+      }
+      return result.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 const Api = new ApiCall();

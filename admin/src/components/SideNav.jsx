@@ -50,7 +50,7 @@ function SideNav() {
         </div>
       </div>
       <div>
-        <Button onClick={() => changeMode()}>{mode.toUpperCase()}</Button>
+        <Button onClick={() => changeMode()}>{mode}</Button>
       </div>
     </div>
   );

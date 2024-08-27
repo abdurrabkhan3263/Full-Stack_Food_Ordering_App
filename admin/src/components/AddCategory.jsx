@@ -1,17 +1,16 @@
-import React, { useEffect, useCallback, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useCallback, useState, useRef } from "react";
+import { Outlet, useNavigate } from "react-router-dom";
 import { Delete, Edit } from "../assets/icons";
 import Category_Card from "@/components/ui/Category_Card";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import Api from "@/api/ApiCalls";
-import Confirm_Delete from "./ui/Confirm_Delete";
 
 function AddCategory() {
   const [input, setInput] = useState("");
   const navigate = useNavigate();
-
   const client = useQueryClient();
+  const isMounted = useRef(false);
 
   const {
     data: { data: categoryData } = "",
@@ -25,19 +24,23 @@ function AddCategory() {
   const backCat = useCallback(
     (e) => {
       const classes = Array.from(e.target.classList);
-      const isBox = classes.includes("cat-box");
-      if (!isBox) {
-        navigate("/");
+      const isClose = classes.includes("close-toggle");
+      if (isClose) {
+        navigate(-1);
       }
     },
     [navigate],
   );
   useEffect(() => {
+    if (!isMounted.current) {
+      isMounted.current = true;
+      return;
+    }
     document.addEventListener("click", backCat);
     return () => {
       document.removeEventListener("click", backCat);
     };
-  }, [backCat]);
+  }, []);
   const addCatMutate = useMutation({
     mutationKey: ["cat"],
     mutationFn: async (inputData) => {
@@ -61,7 +64,7 @@ function AddCategory() {
   };
 
   return (
-    <div className="fixed right-0 top-0 z-50 flex h-screen w-screen items-center justify-center bg-[#0000003d]">
+    <div className="close-toggle fixed right-1/2 top-1/2 z-50 flex h-screen w-screen -translate-y-1/2 translate-x-1/2 items-center justify-center bg-[#0000003d]">
       <div className="cat-box relative flex h-[70%] w-[29%] flex-col rounded-2xl border border-black bg-white p-4 shadow-lg">
         <div className="cat-box flex h-fit items-center justify-between gap-x-5">
           <input
@@ -105,7 +108,9 @@ function AddCategory() {
                   </tr>
                 ))
               ) : (
-                "No Data Found"
+                <tr className="absolute right-1/2 translate-x-1/2 text-center text-2xl font-semibold">
+                  <td className="text-center">No Data Found</td>
+                </tr>
               )}
             </tbody>
           </table>
